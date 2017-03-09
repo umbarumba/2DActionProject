@@ -5,11 +5,14 @@ public class Bullet : MonoBehaviour {
 
 	private GameObject player;
 	private int speed = 10;
+	public int atackpoint = 5;
+	private Boss BossScript;
 
 	// Use this for initialization
 	void Start () {
 		//ユニティちゃんオブジェクトを取得
 		player = GameObject.FindWithTag ("UnityChan");
+
 		//rigidbody2Dコンポーネントを取得
 		Rigidbody2D rigidbody2D = GetComponent<Rigidbody2D> ();
 		//ユニティちゃんの向いている向きに弾を飛ばす
@@ -27,5 +30,13 @@ public class Bullet : MonoBehaviour {
 		if (col.gameObject.tag == "Enemy") {
 			Destroy (gameObject);
 		}
+
+		if (col.gameObject.tag == "Boss") {
+			BossScript = GameObject.FindGameObjectWithTag ("Boss").GetComponent<Boss>();
+			BossScript.LifeDown (atackpoint);
+			Destroy (gameObject);
+			
+		}
+			
 	}
 }

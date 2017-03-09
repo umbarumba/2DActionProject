@@ -8,7 +8,7 @@ public class Enemy1 : MonoBehaviour {
 
 	public GameObject explosion;
 
-	public int attakPoint = 10;
+	public int attakPoint;
 
 	private Life lifeScript;
 
@@ -61,8 +61,10 @@ public class Enemy1 : MonoBehaviour {
 	void OnCollisionEnter2D (Collision2D col) {
 		//UnityChanとぶつかった時
 		if (col.gameObject.tag == "UnityChan") {
+			Debug.Log ("UnityChanとぶつかった！");
 			//LifeScriptのLifeDownメソッドを実行
 			lifeScript.LifeDown (attakPoint);
+
 		}
 	}
 }

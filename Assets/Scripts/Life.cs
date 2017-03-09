@@ -6,19 +6,26 @@ public class Life : MonoBehaviour {
 
 	RectTransform rt;
 
+	private HPbar HPbar;
+
 	public GameObject unityChan;//ユニティちゃん
 	public GameObject explosion;//爆発アニメーション
 	public Text gameOverText;//ゲームオーバーの文字
 	private bool gameOver = false;//ゲームオーバー判定
 
+	public int HitPoint;//HP残量
+	public int MaxHitPoint = 20;//HPの最大値
+	public float HPper = 1;//HP残量パーセント
+
 	// Use this for initialization
 	void Start () {
-		rt = GetComponent<RectTransform> ();
+		HitPoint = MaxHitPoint;
+		HPbar = GameObject.FindGameObjectWithTag ("HP").GetComponent<HPbar> ();
 	}
 
 	void Update () {
 		//ライフが0以下になった時
-		if (rt.sizeDelta.y <= 0) {
+		if (HitPoint <= 0) {
 			//ゲームオーバー判定がfalseなら爆発アニメーションを生成
 			//GameOverメソッドでtrueになるので、1回のみ実行
 			if (gameOver == false) {
@@ -40,17 +47,22 @@ public class Life : MonoBehaviour {
 	}
 
 	public void LifeDown (int ap) {
-		//RectTransformのサイズを取得し、マイナスする
-		rt.sizeDelta -= new Vector2 (0, ap);
+		//自分のHP-相手の攻撃力
+		HitPoint -= ap;
+		Debug.Log (ap);
+		HPper = (float)HitPoint / (float)MaxHitPoint;//HPのパーセントを計算
+		HPbar.GageUpDown (HPper);
 	}
 
 	public void LifeUp (int hp) {
-		//RectTranceformのサイズを取得し、プラスする
-		rt.sizeDelta += new Vector2 (0, hp);
+		//自分のHP+アイテムの回復量
+		HitPoint += hp;
 		//最大値を超えたら、最大値で上書きする
-		if (rt.sizeDelta.y > 240f) {
-			rt.sizeDelta = new Vector2 (51f, 240f);
+		if (HitPoint > MaxHitPoint) {
+			HitPoint = MaxHitPoint;
 		}
+		HPper = (float) HitPoint / (float)MaxHitPoint;//HPのパーセントを計算
+		HPbar.GageUpDown(HPper);
 	}
 
 	public void GameOver () {

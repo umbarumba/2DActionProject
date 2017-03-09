@@ -14,6 +14,8 @@ public class Player : MonoBehaviour {
 	public GameObject bullet;
 
 	public Life lifeScript;
+	public Boss BossScript;
+	private BossZone BossZoneScript;
 
 	private Rigidbody2D RB2D;
 	private Animator anim;
@@ -30,16 +32,28 @@ public class Player : MonoBehaviour {
 		//各コンポーネントをキャッシュしておく
 		anim = GetComponent<Animator>();
 		RB2D = GetComponent<Rigidbody2D> ();
-
 		Rend = GetComponent<Renderer> ();
+
+		BossZoneScript = GameObject.FindGameObjectWithTag ("BossZone").GetComponent<BossZone> ();
 	}
 
 	void Update () {
 		//Linecastでユニティちゃんの足元に地面があるか判定
 		isGrounded = Physics2D.Linecast (
-			transform.position + transform.up * 1,
-			transform.position - transform.up * 0.05f,
-			groundLayer);
+			transform.position + transform.up * 1 - transform.right*1,
+			transform.position - transform.up * 0.05f  - transform.right*1,
+			groundLayer)
+			||
+			Physics2D.Linecast (
+				transform.position + transform.up * 1 + transform.right*1,
+				transform.position - transform.up * 0.05f  + transform.right*1,
+				groundLayer)
+			||
+			Physics2D.Linecast (
+				transform.position + transform.up * 1 ,
+				transform.position - transform.up * 0.05f ,
+				groundLayer)
+			;
 
 		//クリア時にジャンプさせない
 		if (!gameClear) {
@@ -57,19 +71,30 @@ public class Player : MonoBehaviour {
 				}
 			}
 		}
+		//ジャンプ中に
 		//上下の移動速度を取得
 		float velY = RB2D.velocity.y;
 		//移動速度が0.1より大きければ上昇
 		bool isJumping = velY > 0.1f ? true:false;
 		//移動速度が-0.1より小さければ下降
+		//＜予定＞↓isGrounedがtrueの時にfalseにする
 		bool isFalling = velY < -0.1f ? true:false;
 		//結果をアニメータービューの変数へ反映する
 		anim.SetBool("isJumping",isJumping);
 		anim.SetBool("isFalling", isFalling);
 
+		//ジャンプ中に
+		if (isJumping) {
+			//spaceキーが離されたら
+			if (Input.GetKeyUp (KeyCode.Space)) {
+				//速度を0にする
+				RB2D.velocity = Vector2.zero;
+			}
+		}
+
 		//クリア時に弾を撃たせない、ゲームオーバーにさせない
 		if (!gameClear) {
-			if (Input.GetKeyDown (KeyCode.LeftControl)) {
+			if (Input.GetKeyDown (KeyCode.Z)) {
 				anim.SetTrigger ("Shot");
 				Instantiate (bullet, transform.position + new Vector3 (0f, 1.2f, 0f), transform.rotation);
 			}
@@ -99,13 +124,17 @@ public class Player : MonoBehaviour {
 				transform.localScale = temp;
 				//Wai->Dash
 				anim.SetBool ("Dash", true);
-				//画面中央から左に4移動した位置をユニティちゃんが超えたら
+
+
+				//画面中央から左に4移動した位置をユニティちゃんが超えたら	
 				if (transform.position.x > mainCamera.transform.position.x - 4) {
-					//カメラの位置を取得
+						//カメラの位置を取得
 					Vector3 cameraPos = mainCamera.transform.position;
-					//ユニティちゃんの位置から右に4移動した位置を画面中央にする
-					cameraPos.x = transform.position.x + 4;
-					mainCamera.transform.position = cameraPos;
+					if (BossScript._isRendered == false) {
+						//ユニティちゃんの位置から右に4移動した位置を画面中央にする
+						cameraPos.x = transform.position.x + 4;
+						mainCamera.transform.position = cameraPos;
+					}
 				}
 				//カメラ表示領域の左下をワールド座標に変換
 				Vector2 min = Camera.main.ViewportToWorldPoint (new Vector2 (0, 0));
@@ -137,13 +166,16 @@ public class Player : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D (Collision2D col) {
+		Debug.Log (col.gameObject.tag);
 		//Enemyとぶつかった時にコルーチンを実行
-		if (col.gameObject.tag == "Enemy") {
+		if (col.gameObject.tag == "Enemy" || col.gameObject.tag == "Boss" || col.gameObject.tag == "EnemyBullet") {
+			
 			StartCoroutine ("Damage");
 		}
 	}
 
 	IEnumerator Damage () {
+		Debug.Log ("Damageコルーチン発動");
 		//レイヤーをPlayerDamageに変更
 		gameObject.layer = LayerMask.NameToLayer ("PlayerDamage");
 		//while文を10回ループ
@@ -168,6 +200,14 @@ public class Player : MonoBehaviour {
 		if (col.tag == "ClearZone") {
 			//ゲームクリアー
 			gameClear = true;
+		}
+
+		if (col.tag == "BossZone") {
+			BossZoneScript.BossZoneEnter ();
+		}
+
+		if (col.tag == "EnemyBullet") {
+			StartCoroutine ("Damage");
 		}
 	}
     
