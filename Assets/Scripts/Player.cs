@@ -14,7 +14,7 @@ public class Player : MonoBehaviour {
 	public GameObject bullet;
 
 	public Life lifeScript;
-	public Boss BossScript;
+	private Boss BossScript;
 	private BossZone BossZoneScript;
 
 	private Rigidbody2D RB2D;
@@ -23,6 +23,8 @@ public class Player : MonoBehaviour {
 	private bool isGrounded;//着地判定
 
 	private Renderer Rend;
+
+    private bool _CameraFreeze = false;
 
 	private bool gameClear = false;//ゲームクリアーしたら操作を無効にする
 	public Text clearText;//ゲームクリアー時に表示するテキスト
@@ -130,7 +132,8 @@ public class Player : MonoBehaviour {
 				if (transform.position.x > mainCamera.transform.position.x - 4) {
 						//カメラの位置を取得
 					Vector3 cameraPos = mainCamera.transform.position;
-					if (BossScript._isRendered == false) {
+                    //Bossが映っていないときだけ
+					if (_CameraFreeze == false) {
 						//ユニティちゃんの位置から右に4移動した位置を画面中央にする
 						cameraPos.x = transform.position.x + 4;
 						mainCamera.transform.position = cameraPos;
@@ -166,7 +169,7 @@ public class Player : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D (Collision2D col) {
-		Debug.Log (col.gameObject.tag);
+		//Debug.Log (col.gameObject.tag);
 		//Enemyとぶつかった時にコルーチンを実行
 		if (col.gameObject.tag == "Enemy" || col.gameObject.tag == "Boss" || col.gameObject.tag == "EnemyBullet") {
 			
@@ -175,7 +178,7 @@ public class Player : MonoBehaviour {
 	}
 
 	IEnumerator Damage () {
-		Debug.Log ("Damageコルーチン発動");
+		//Debug.Log ("Damageコルーチン発動");
 		//レイヤーをPlayerDamageに変更
 		gameObject.layer = LayerMask.NameToLayer ("PlayerDamage");
 		//while文を10回ループ
@@ -211,8 +214,17 @@ public class Player : MonoBehaviour {
 		}
 	}
     
-		void CallTitle () {
-			//タイトル画面へ
-			Application.LoadLevel("Title");
-		}
+	void CallTitle () {
+        //タイトル画面へ
+        Application.LoadLevel("Title");
+	}
+
+    public void BossFinder () {
+        BossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<Boss>();
+    }
+
+    public void SwichingBool()
+    {
+        _CameraFreeze = true;
+    }
 }

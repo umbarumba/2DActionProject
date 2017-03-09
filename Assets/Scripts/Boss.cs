@@ -18,6 +18,7 @@ public class Boss : MonoBehaviour {
 	private bool _canShot2 = true;
 
 	private Life lifeScript;
+    private Player PlayerScript;
 
 	public int BossMaxHP = 20;
 	public int BossHP;
@@ -33,6 +34,8 @@ public class Boss : MonoBehaviour {
 	private void Start () {
 		Timer = 0f;
 		lifeScript = GameObject.FindGameObjectWithTag ("HP").GetComponent<Life> ();
+        PlayerScript = GameObject.FindGameObjectWithTag("UnityChan").GetComponent<Player>();
+
 		Rend = GetComponent<Renderer> ();
 		RB2D = GetComponent<Rigidbody2D> ();
 		BossHP = BossMaxHP;
@@ -68,6 +71,7 @@ public class Boss : MonoBehaviour {
 		if (BossHP <= 0) {
 			Destroy (gameObject);
 			Instantiate (explosion, transform.position, transform.rotation);
+            _isRendered = false;
 		}
 	}
 
@@ -116,6 +120,7 @@ public class Boss : MonoBehaviour {
 		//メインカメラに映った時だけ_isRenderedをtrue
 		if (Camera.current.tag == MAIN_CAMERA_TAG_NAME) {
 			_isRendered = true;
+            PlayerScript.SwichingBool();
 		}
 	}
 
