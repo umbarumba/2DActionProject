@@ -26,7 +26,7 @@ public class Player : MonoBehaviour {
 
     private bool _CameraFreeze = false;
 
-	private bool gameClear = false;//ゲームクリアーしたら操作を無効にする
+	public bool gameClear = false;//ゲームクリアーしたら操作を無効にする
 	public Text clearText;//ゲームクリアー時に表示するテキスト
 
 	// Use this for initialization
@@ -161,7 +161,8 @@ public class Player : MonoBehaviour {
 			clearText.enabled = true;
 			//アニメーションは走り
 			anim.SetBool ("Dash", true);
-			//右に進み続ける
+            //右に進み続ける
+            transform.localScale = new Vector2(1, transform.localScale.y);
 			RB2D.velocity = new Vector2 (speed, RB2D.velocity.y);
 			//5秒後にタイトル画面へ戻るCallTitleメソッドを呼び出す
 			Invoke ("CallTitle", 5);

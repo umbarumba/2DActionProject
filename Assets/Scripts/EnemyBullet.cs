@@ -8,6 +8,7 @@ public class EnemyBullet : MonoBehaviour {
 	private int atackpoint = 4;
 	private int speed = 6;
 	private Life lifescript;
+    private Player PlayerScript;
 
 	// Use this for initialization
 	void Start () {
@@ -20,6 +21,8 @@ public class EnemyBullet : MonoBehaviour {
 		RB2D.velocity = new Vector2 (speed * BossEnemy.transform.localScale.x * -1, RB2D.velocity.y);
 
 		lifescript = GameObject.FindGameObjectWithTag ("HP").GetComponent<Life> ();
+
+        PlayerScript = player.GetComponent<Player>();
 
 		Vector2 temp = transform.localScale;
 
@@ -40,6 +43,10 @@ public class EnemyBullet : MonoBehaviour {
 	}
 	// Update is called once per frame
 	void Update () {
+        if(PlayerScript.gameClear == true)
+        {
+            atackpoint = 0;
+        }
 	
 	}
 }

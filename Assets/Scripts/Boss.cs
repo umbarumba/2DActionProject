@@ -72,6 +72,7 @@ public class Boss : MonoBehaviour {
 			Destroy (gameObject);
 			Instantiate (explosion, transform.position, transform.rotation);
             _isRendered = false;
+            PlayerScript.gameClear = true;
 		}
 	}
 
